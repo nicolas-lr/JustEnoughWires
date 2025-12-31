@@ -1,0 +1,17 @@
+C:\Users\Nícolas\Wired Project\bin\Debug\net10.0\Nícolas.exe
+C:\Users\Nícolas\Wired Project\bin\Debug\net10.0\Nícolas.deps.json
+C:\Users\Nícolas\Wired Project\bin\Debug\net10.0\Nícolas.runtimeconfig.json
+C:\Users\Nícolas\Wired Project\bin\Debug\net10.0\Nícolas.dll
+C:\Users\Nícolas\Wired Project\bin\Debug\net10.0\Nícolas.pdb
+C:\Users\Nícolas\Wired Project\bin\Debug\net10.0\Nefarius.ViGEm.Client.dll
+C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\Nícolas.csproj.AssemblyReference.cache
+C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\Nícolas.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\Nícolas.AssemblyInfoInputs.cache
+C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\Nícolas.AssemblyInfo.cs
+C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\Nícolas.csproj.CoreCompileInputs.cache
+C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\Nícolas.csproj.Up2Date
+C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\Nícolas.dll
+C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\refint\Nícolas.dll
+C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\Nícolas.pdb
+C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\Nícolas.genruntimeconfig.cache
+C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\ref\Nícolas.dll

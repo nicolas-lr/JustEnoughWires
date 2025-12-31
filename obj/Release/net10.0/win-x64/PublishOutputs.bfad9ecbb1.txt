@@ -1,0 +1,2 @@
+C:\Users\Nícolas\Wired Project\bin\Release\net10.0\win-x64\publish\JustEnoughWires.pdb
+C:\Users\Nícolas\Wired Project\bin\Release\net10.0\win-x64\publish\JustEnoughWires.exe
