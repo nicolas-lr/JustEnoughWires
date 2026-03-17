@@ -3,23 +3,18 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using Nefarius.ViGEm.Client;
-using Nefarius.ViGEm.Client.Targets;
-using Nefarius.ViGEm.Client.Targets.Xbox360;
 
 // REQUISITOS:
 // 1. Instalar NuGet: Nefarius.ViGEm.Client
 // 2. Instalar Driver no Windows: ViGEmBus Setup (v1.21.442+)
 
-namespace XboxRemoteServer
-{
+namespace XboxRemoteServer{
     class Program
     {
-        // --- CONFIGURAÇÕES DE PORTA ---
+        // Portas
         private const int PORTA_RECEBE = 8080;         // Porta que o Celular manda dados
         private const int PORTA_ENVIA_ANDROID = 9090;  // Porta para devolver vibração
 
-        // --- OBJETOS GLOBAIS ---
         private static UdpClient _udpServer;
         private static IPEndPoint _androidEndPoint; // Guarda o IP do celular
         private static Dictionary<int, Xbox360Button> _mapaBotoesAndroid;
@@ -31,10 +26,8 @@ namespace XboxRemoteServer
             Console.WriteLine("=== INICIANDO SERVIDOR ===");
             Console.ResetColor();
 
-            // 1. Configura Dicionário (Android Key -> Xbox Button)
             ConfigurarMapaBotoes();
 
-            // 2. Inicializa o Controle Virtual (ViGEm)
             ViGEmClient client;
             IXbox360Controller controller;
 
@@ -60,12 +53,11 @@ namespace XboxRemoteServer
                 return;
             }
 
-            // 3. Inicializa a Rede UDP
+
             try
             {
                 _udpServer = new UdpClient(PORTA_RECEBE);
                 
-                // Correção para bug de UDP no Windows (ConnectionReset)
                 if (OperatingSystem.IsWindows())
                 {
                     const int SIO_UDP_CONNRESET = -1744830452;
@@ -81,7 +73,7 @@ namespace XboxRemoteServer
                 return;
             }
 
-            // 4. Loop Principal (Recebimento de Dados)
+            // Recebimento de Dados
             IPEndPoint remoteEP = new IPEndPoint(IPAddress.Any, PORTA_RECEBE);
             string ultimoIpConectado = "";
 
@@ -89,13 +81,10 @@ namespace XboxRemoteServer
             {
                 try
                 {
-                    // Bloqueia a thread até chegar dados
                     byte[] data = _udpServer.Receive(ref remoteEP);
 
-                    // Atualiza destino da vibração
                     _androidEndPoint = new IPEndPoint(remoteEP.Address, PORTA_ENVIA_ANDROID);
 
-                    // Log de nova conexão apenas uma vez
                     if (ultimoIpConectado != remoteEP.Address.ToString())
                     {
                         ultimoIpConectado = remoteEP.Address.ToString();
@@ -104,7 +93,6 @@ namespace XboxRemoteServer
                         Console.ResetColor();
                     }
 
-                    // Processa o pacote recebido
                     ProcessarEntrada(controller, data);
                 }
                 catch (Exception ex)
@@ -114,7 +102,7 @@ namespace XboxRemoteServer
             }
         }
 
-        // --- ROTEADOR DE PACOTES ---
+        //  Rotemento pacotes
         static void ProcessarEntrada(IXbox360Controller controller, byte[] d)
         {
             if (d == null || d.Length == 0) return;
@@ -123,14 +111,14 @@ namespace XboxRemoteServer
 
             switch (header)
             {
-                // --- NOVO: HANDSHAKE / PING ---
+                // Handshake
                 case 0xF0:
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"   [PING] Handshake recebido! Conexão OK.");
                     Console.ResetColor();
                     break;
 
-                // --- BOTÃO GUIDE / HOME ---
+                // Guide
                 case 0x07:
                     if (d.Length >= 5)
                     {
@@ -139,43 +127,41 @@ namespace XboxRemoteServer
                     }
                     break;
 
-                // --- PROTOCOLO NATIVO (Android) ---
-                case 0xA1: // EIXOS
+                //  Android Nativo
+                case 0xA1: // eixos
                     if (d.Length >= 9) ProcessarTodosEixos(controller, d);
                     break;
 
-                case 0xB1: // BOTÃO DOWN
+                case 0xB1: // botao down
                     if (d.Length >= 2) ProcessarBotao(controller, true, d[1]);
                     break;
 
-                case 0xB0: // BOTÃO UP
+                case 0xB0: // botao up
                     if (d.Length >= 2) ProcessarBotao(controller, false, d[1]);
                     break;
-
-                // --- PROTOCOLO RAW (Padrão) ---
+ 
                 default:
                     ProcessarDadosRaw(controller, d);
                     break;
             }
         }
 
-        // --- LÓGICA 1: EIXOS, GATILHOS E D-PAD ---
+        //  Eixos, gatilhos e D-pad 
         static void ProcessarTodosEixos(IXbox360Controller controller, byte[] d)
         {
-            // Estrutura: [A1, LX, LY, RX, RY, LT, RT, HatX, HatY]
 
-            // --- 1. ANALÓGICOS COM DEADZONE ---
+            //  Analogicos
             controller.SetAxisValue(Xbox360Axis.LeftThumbX,  AplicarDeadzone(d[1], false)); // X Normal
             controller.SetAxisValue(Xbox360Axis.LeftThumbY,  AplicarDeadzone(d[2], true));  // Y Invertido
             
             controller.SetAxisValue(Xbox360Axis.RightThumbX, AplicarDeadzone(d[3], false)); // X Normal
             controller.SetAxisValue(Xbox360Axis.RightThumbY, AplicarDeadzone(d[4], true));  // Y Invertido
 
-            // --- 2. GATILHOS (L2/R2) ---
+            // Gatilhos 
             controller.SetSliderValue(Xbox360Slider.LeftTrigger, d[5]);
             controller.SetSliderValue(Xbox360Slider.RightTrigger, d[6]);
 
-            // --- 3. D-PAD (HAT SWITCH) ---
+            //  D-pad
             byte hatX = d[7];
             byte hatY = d[8];
 
@@ -204,7 +190,7 @@ namespace XboxRemoteServer
             }
         }
 
-        // --- FUNÇÃO AUXILIAR MATEMÁTICA ---
+        // Deadzone
         static short AplicarDeadzone(byte rawValue, bool inverter)
         {
             const int DEADZONE = 10; 
@@ -221,8 +207,6 @@ namespace XboxRemoteServer
 
             return (short)resultado;
         }
-
-        // --- LÓGICA 2: BOTÕES DIGITAIS (Restaurado!) ---
         static void ProcessarBotao(IXbox360Controller controller, bool pressionado, byte keyCode)
         {
             if (_mapaBotoesAndroid.ContainsKey(keyCode))
@@ -231,52 +215,52 @@ namespace XboxRemoteServer
             }
         }
 
-        // --- LÓGICA 3: DADOS RAW (Compatibilidade USB) ---
+        // Dados RAW
         static void ProcessarDadosRaw(IXbox360Controller controller, byte[] d)
+{
+    if (d.Length < 14) return; 
+    try
+    {
+        int offset = (d[0] == 0x00) ? 1 : 0;
+        if (d[0 + offset] != 0x20) return;
+
+        // Botoes Principais (Byte 4)
+        controller.SetButtonState(Xbox360Button.Start, (d[4 + offset] & 0x04) != 0);
+        controller.SetButtonState(Xbox360Button.Back,  (d[4 + offset] & 0x08) != 0);
+        controller.SetButtonState(Xbox360Button.A,     (d[4 + offset] & 0x10) != 0);
+        controller.SetButtonState(Xbox360Button.B,     (d[4 + offset] & 0x20) != 0);
+        controller.SetButtonState(Xbox360Button.X,     (d[4 + offset] & 0x40) != 0);
+        controller.SetButtonState(Xbox360Button.Y,     (d[4 + offset] & 0x80) != 0);
+
+        // D-Pad e Shoulders (Byte 5)
+        controller.SetButtonState(Xbox360Button.Up,    (d[5 + offset] & 0x01) != 0);
+        controller.SetButtonState(Xbox360Button.Down,  (d[5 + offset] & 0x02) != 0);
+        controller.SetButtonState(Xbox360Button.Left,  (d[5 + offset] & 0x04) != 0);
+        controller.SetButtonState(Xbox360Button.Right, (d[5 + offset] & 0x08) != 0);
+        controller.SetButtonState(Xbox360Button.LeftShoulder,  (d[5 + offset] & 0x10) != 0);
+        controller.SetButtonState(Xbox360Button.RightShoulder, (d[5 + offset] & 0x20) != 0);
+        controller.SetButtonState(Xbox360Button.LeftThumb,     (d[5 + offset] & 0x40) != 0); // L3
+        controller.SetButtonState(Xbox360Button.RightThumb,    (d[5 + offset] & 0x80) != 0); // R3
+
+        // Analogicos (bytes 14 a 18)
+        if (d.Length >= (18 + offset))
         {
-            if (d.Length < 14) return; // Pacote muito pequeno para ser USB Xbox
+            // Gatilhos
+            int rawLT = d[6 + offset] | (d[7 + offset] << 8);
+            int rawRT = d[8 + offset] | (d[9 + offset] << 8);
+            controller.SetSliderValue(Xbox360Slider.LeftTrigger, (byte)(rawLT >> 2));
+            controller.SetSliderValue(Xbox360Slider.RightTrigger, (byte)(rawRT >> 2));
 
-            try
-            {
-                controller.SetButtonState(Xbox360Button.Guide, (d[4] & 0x01) != 0);
-
-                int offset = (d[0] != 0x20 && d.Length > 15) ? 1 : 0;
-
-                controller.SetButtonState(Xbox360Button.Start, (d[4 + offset] & 0x04) != 0);
-                controller.SetButtonState(Xbox360Button.Back,  (d[4 + offset] & 0x08) != 0);
-                controller.SetButtonState(Xbox360Button.A,     (d[4 + offset] & 0x10) != 0);
-                controller.SetButtonState(Xbox360Button.B,     (d[4 + offset] & 0x20) != 0);
-                controller.SetButtonState(Xbox360Button.X,     (d[4 + offset] & 0x40) != 0);
-                controller.SetButtonState(Xbox360Button.Y,     (d[4 + offset] & 0x80) != 0);
-                
-                controller.SetButtonState(Xbox360Button.Up,    (d[5 + offset] & 0x01) != 0);
-                controller.SetButtonState(Xbox360Button.Down,  (d[5 + offset] & 0x02) != 0);
-                controller.SetButtonState(Xbox360Button.Left,  (d[5 + offset] & 0x04) != 0);
-                controller.SetButtonState(Xbox360Button.Right, (d[5 + offset] & 0x08) != 0);
-
-                controller.SetButtonState(Xbox360Button.LeftShoulder,  (d[5 + offset] & 0x10) != 0);
-                controller.SetButtonState(Xbox360Button.RightShoulder, (d[5 + offset] & 0x20) != 0);
-                controller.SetButtonState(Xbox360Button.LeftThumb,     (d[5 + offset] & 0x40) != 0);
-                controller.SetButtonState(Xbox360Button.RightThumb,    (d[5 + offset] & 0x80) != 0);
-
-                if (d.Length >= (18 + offset))
-                {
-                    int rawLT = d[6 + offset] | (d[7 + offset] << 8);
-                    controller.SetSliderValue(Xbox360Slider.LeftTrigger, (byte)(rawLT >> 2));
-
-                    int rawRT = d[8 + offset] | (d[9 + offset] << 8);
-                    controller.SetSliderValue(Xbox360Slider.RightTrigger, (byte)(rawRT >> 2));
-
-                    controller.SetAxisValue(Xbox360Axis.LeftThumbX,  BitConverter.ToInt16(d, 10 + offset));
-                    controller.SetAxisValue(Xbox360Axis.LeftThumbY,  BitConverter.ToInt16(d, 12 + offset));
-                    controller.SetAxisValue(Xbox360Axis.RightThumbX, BitConverter.ToInt16(d, 14 + offset));
-                    controller.SetAxisValue(Xbox360Axis.RightThumbY, BitConverter.ToInt16(d, 16 + offset));
-                }
-            }
-            catch { /* Ignora pacote corrompido */ }
+            // Analógicos (16-bit)
+            controller.SetAxisValue(Xbox360Axis.LeftThumbX,  BitConverter.ToInt16(d, 10 + offset));
+            controller.SetAxisValue(Xbox360Axis.LeftThumbY,  BitConverter.ToInt16(d, 12 + offset));
+            controller.SetAxisValue(Xbox360Axis.RightThumbX, BitConverter.ToInt16(d, 14 + offset));
+            controller.SetAxisValue(Xbox360Axis.RightThumbY, BitConverter.ToInt16(d, 16 + offset));
         }
+    }
+    catch {}
+}
 
-        // --- AUXILIARES ---
         static void EnviarVibracaoParaAndroid(byte motorForte, byte motorFraco)
         {
             if (_androidEndPoint == null) return;

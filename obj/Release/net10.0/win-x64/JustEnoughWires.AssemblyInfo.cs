@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("JustEnoughWires")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+57565cf4852e4ad7b2fc1bc61bdfe1c6c664ad49")]
 [assembly: System.Reflection.AssemblyProductAttribute("JustEnoughWires")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JustEnoughWires")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

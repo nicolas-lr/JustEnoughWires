@@ -202,3 +202,4 @@ C:\Users\Nícolas\Wired Project\obj\Release\net10.0\win-x64\refint\JustEnoughWir
 C:\Users\Nícolas\Wired Project\obj\Release\net10.0\win-x64\JustEnoughWires.pdb
 C:\Users\Nícolas\Wired Project\obj\Release\net10.0\win-x64\JustEnoughWires.genruntimeconfig.cache
 C:\Users\Nícolas\Wired Project\obj\Release\net10.0\win-x64\ref\JustEnoughWires.dll
+C:\Users\Nícolas\Wired Project\obj\Release\net10.0\win-x64\JustEnoughWires.sourcelink.json

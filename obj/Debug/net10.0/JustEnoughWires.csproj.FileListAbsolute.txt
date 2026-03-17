@@ -15,3 +15,4 @@ C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\refint\JustEnoughWires.dll
 C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\JustEnoughWires.pdb
 C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\JustEnoughWires.genruntimeconfig.cache
 C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\ref\JustEnoughWires.dll
+C:\Users\Nícolas\Wired Project\obj\Debug\net10.0\JustEnoughWires.sourcelink.json
