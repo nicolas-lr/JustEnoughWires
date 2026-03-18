@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Nefarius.ViGEm.Client;
+using Nefarius.ViGEm.Client.Targets;
+using Nefarius.ViGEm.Client.Targets.Xbox360;
 
 // REQUISITOS:
 // 1. Instalar NuGet: Nefarius.ViGEm.Client
 // 2. Instalar Driver no Windows: ViGEmBus Setup (v1.21.442+)
 
-namespace XboxRemoteServer{
+namespace JustEnoughWires{
     class Program
     {
         // Portas
